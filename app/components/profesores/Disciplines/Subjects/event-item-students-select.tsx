@@ -1,0 +1,87 @@
+
+import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
+import React from "react";
+import { Alert, StyleSheet,Text, TouchableOpacity, View } from "react-native";
+import { RootStackParamList } from "../../../../screens/Home";
+import axios from "axios";
+
+//type ItemDetailSubjectsProps = NativeStackScreenProps<RootStackParamList,'Subjects_detail'>;
+
+interface EventItemAlumnosProps {
+    alumno_id: string;
+    firstname:string;
+    lastname:string;
+    navigation: NativeStackNavigationProp<RootStackParamList>;
+    subject_id:string;
+    handleRemoveFromList: (alumno_id: string) => void;
+  
+  }
+
+const EventItemStudentsSelect: React.FC<EventItemAlumnosProps> = ({ subject_id,alumno_id,firstname,lastname, navigation,handleRemoveFromList }) => {   
+    const post_alumno = async () => {         
+        try { 
+            const response = await axios.post(`https://catolica-backend.vercel.app/apiv1/subjects/${subject_id}/students/`, {student_pk:alumno_id
+                
+            });
+            /* console.log("axios result", response.data) */
+            handleRemoveFromList(alumno_id);
+   
+            //navigation.goBack();
+            
+        } catch (error:any) {
+            /* console.error("Errors:", error);   */          
+            if (error.response.data) {
+                //console.log("axios result", error.response.data)
+                alert(error.response.data.message);
+            }
+        
+        }
+    }
+    const handleRemoveStudent = () => {        
+        post_alumno()
+      };
+    return ( 
+        <View style={{flexDirection:'row'}}> 
+            <View style={{width:'40%'}}>
+                <TouchableOpacity key ={alumno_id} style = { styles2.card } onPress={()=>navigation.navigate("Alumno_perfil",{alumno_id})}>
+                    <View>
+                        <Text> {alumno_id} {firstname} {lastname}</Text>
+                    </View>
+                    
+                </TouchableOpacity>
+            </View>
+            <View style = {{marginLeft:15}}>
+                <TouchableOpacity style={styles2.addButtonTouch}  onPress={handleRemoveStudent}>
+                    <Text style={styles2.addButtonText}>Agregar</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+       
+     );
+}
+
+const styles2 = StyleSheet.create({
+    card: {
+        borderWidth: 1,
+        borderColor: '#c5c5c5',
+        borderRadius: 10,
+        padding: 10,
+        alignSelf: 'stretch',
+        marginBottom:2,
+        flex:1,
+    },
+    addButtonTouch: {
+        backgroundColor: 'green', // yellow background
+        width:"100%",
+        padding: 12,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    addButtonText: {
+        fontSize: 9,
+        color: '#231f20',
+        fontWeight: 'bold',
+    },
+})
+
+export default EventItemStudentsSelect;
